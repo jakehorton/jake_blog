@@ -1,0 +1,150 @@
+// Title: Mixins
+// Description: A group of useful mixins to use across all platforms.
+
+// ---------------------------------------------------------------------------------- //
+// FLEX BOX GRID
+// ---------------------------------------------------------------------------------- //
+
+@mixin flexbox() {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+}
+
+%flexbox {
+  @include flexbox;
+}
+
+@mixin flex-flow(
+  $values: (
+    row nowrap,
+  )
+) {
+  -webkit-flex-flow: $values;
+  -moz-flex-flow: $values;
+  -ms-flex-flow: $values;
+  flex-flow: $values;
+}
+
+@mixin align-items($value: stretch) {
+  @if $value == flex-start {
+    -webkit-box-align: start;
+    -ms-flex-align: start;
+  } @else if $value == flex-end {
+    -webkit-box-align: end;
+    -ms-flex-align: end;
+  } @else {
+    -webkit-box-align: $value;
+    -ms-flex-align: $value;
+  }
+  -webkit-align-items: $value;
+  -moz-align-items: $value;
+  align-items: $value;
+}
+
+@mixin justify-content($justify) {
+  -webkit-justify-content: $justify;
+  -moz-justify-content: $justify;
+  -ms-justify-content: $justify;
+  justify-content: $justify;
+  -ms-flex-pack: $justify;
+}
+
+.row,
+%row {
+  @extend %flexbox;
+  @include flex-flow(row wrap);
+
+  &.centered {
+    @include justify-content(center);
+  }
+
+  @media (min-width: 768px) {
+    margin: 0 -16px;
+  }
+}
+
+.col-empty {
+  display: none !important;
+
+  @media (min-width: 768px) {
+    display: inline-block !important;
+  }
+}
+
+@mixin col($col, $sum) {
+  width: 100%;
+  padding: 1em 0;
+  position: relative;
+  flex: 1 100%;
+  display: inline-block;
+
+  @media (min-width: 768px) {
+    width: percentage($col/$sum);
+    max-width: percentage($col/$sum);
+    flex: 1 auto;
+    padding: 1em;
+  }
+}
+
+@for $i from 1 through 12 {
+  .row .col-#{$i} {
+    @include col($i, 12);
+  }
+}
+
+.no-flexbox {
+  .row {
+    display: block;
+    // overflow: auto;
+    .col {
+      display: inline-block;
+      vertical-align: top;
+      margin-right: -4px;
+    }
+  }
+}
+
+.no-padding {
+  .col {
+    padding: 0;
+  }
+}
+
+// ---------------------------------------------------------------------------------- //
+// Image aspect ratio calculator
+// More info: https://css-tricks.com/snippets/sass/maintain-aspect-ratio-mixin/
+// ---------------------------------------------------------------------------------- //
+
+@mixin aspect-ratio($width, $height) {
+  position: relative;
+
+  &:before {
+    display: block;
+    content: "";
+    width: 100%;
+    padding-top: ($height / $width) * 100%;
+  }
+
+  > img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+  }
+}
+
+// ---------------------------------------------------------------------------------- //
+// Font size px to em
+// More info: https://css-tricks.com/snippets/sass/maintain-aspect-ratio-mixin/
+// ---------------------------------------------------------------------------------- //
+
+$browser-context: 16; // Default
+
+@function em($pixels, $context: $browser-context) {
+  @return #{$pixels/$context}em;
+}
